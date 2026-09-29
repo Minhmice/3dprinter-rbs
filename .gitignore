@@ -19,6 +19,6 @@ venv/
 .DS_Store
 Thumbs.db
 
-# Sensitive / raw discovery dumps
-artifacts/*.raw
-artifacts/*.tmp
+# Discovery dumps and local audit artifacts
+artifacts/*
+!artifacts/.gitkeep
