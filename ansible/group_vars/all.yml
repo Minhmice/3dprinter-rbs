@@ -4,8 +4,12 @@
 
 managed_packages: []
 managed_directories: []
-managed_services: {}
+managed_services:
+  crowsnest:
+    state: started
+    enabled: true
 web_apps: {}
+crowsnest_enabled: true
 
 server:
   timezone: null

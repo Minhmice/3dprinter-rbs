@@ -1,4 +1,42 @@
 ---
+- name: Ensure admin user minhmice exists
+  ansible.builtin.user:
+    name: minhmice
+    shell: /bin/bash
+    groups:
+      - sudo
+      - adm
+      - dialout
+      - plugdev
+      - netdev
+      - gpio
+      - i2c
+      - spi
+    append: true
+    state: present
+  become: true
+
+- name: Ensure admin user minhmice has full sudo privilege
+  ansible.builtin.copy:
+    content: "minhmice ALL=(ALL) NOPASSWD: ALL\n"
+    dest: /etc/sudoers.d/010_minhmice-nopasswd
+    owner: root
+    group: root
+    mode: '0440'
+    validate: '/usr/sbin/visudo -cf %s'
+  become: true
+
+- name: Deploy crowsnest webcam configuration
+  ansible.builtin.copy:
+    src: crowsnest.conf
+    dest: /home/kero/printer_data/config/crowsnest.conf
+    owner: kero
+    group: kero
+    mode: '0644'
+  notify: Restart crowsnest
+  when: crowsnest_enabled | default(true) | bool
+  become: true
+
 - name: Ensure declared managed system services are in desired state
   ansible.builtin.systemd_service:
     name: "{{ item.key }}"

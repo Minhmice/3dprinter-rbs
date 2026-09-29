@@ -43,6 +43,20 @@
         timeout: 5
       register: moonraker_check
       failed_when: false
+    - name: 6. Verify crowsnest service status
+      ansible.builtin.systemd_service:
+        name: crowsnest
+      register: crowsnest_service_check
+      failed_when: false
+
+    - name: 7. Verify webcam snapshot endpoint responds
+      ansible.builtin.uri:
+        url: http://127.0.0.1:8080/?action=snapshot
+        return_content: false
+        status_code: 200
+        timeout: 5
+      register: webcam_check
+      failed_when: false
 
     - name: Summary of verification
       ansible.builtin.debug:
@@ -50,3 +64,5 @@
           ssh_connected: true
           mainsail_web_status: "{{ web_check.status | default('unreachable') }}"
           moonraker_api_status: "{{ moonraker_check.status | default('unreachable') }}"
+          crowsnest_status: "{{ crowsnest_service_check.status.ActiveState | default('unknown') }}"
+          webcam_snapshot_status: "{{ webcam_check.status | default('unreachable') }}"
