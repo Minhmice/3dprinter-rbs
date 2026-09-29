@@ -26,7 +26,7 @@ For every server change or feature request:
 
 1. **Inspect repository** — check current roles, playbooks, variables, and lockfiles.
 2. **Inspect relevant actual server state** — query the target host in read-only mode to understand current reality.
-3. **Modify desired state in Git** — edit `ansible/group_vars/all.yml`, roles, or playbooks.
+3. **Modify desired state in Git** — edit `ansible/inventory/group_vars/all.yml`, roles, or playbooks.
 4. **Lint and validate** — run syntax checks and linting locally.
 5. **Run plan/check/diff** — execute `./scripts/plan.sh` to preview changes.
 6. **Review unexpected changes** — confirm only the declared changes appear in the diff.
@@ -34,3 +34,11 @@ For every server change or feature request:
 8. **Verify** — execute `./scripts/verify.sh` and observe service health.
 9. **Show Git diff** — inspect `git status` and `git diff` for accidental secret leaks.
 10. **Commit** — create a focused, descriptive Git commit.
+
+---
+
+## Configuration Management Layout
+
+- **Inventory:** `ansible/inventory/hosts.yml` (minimal host definitions, no passwords, no hardcoded IPs).
+- **Desired State Variables:** `ansible/inventory/group_vars/all.yml` is the sole source of truth for global configuration. Never introduce parallel `group_vars` paths.
+- **Base Stack Scope:** Klipper, Moonraker, Mainsail, nginx proxy, Crowsnest, and Tailscale are BASE / OBSERVED. Only custom administrative configurations, custom web apps, and custom systemd units are MANAGED by this repository.

@@ -6,7 +6,20 @@
     - name: 1. Verify SSH connectivity and basic facts
       ansible.builtin.ping:
 
-    - name: 2. Verify root disk usage is below 90%
+    - name: 2. Verify sudo privilege for administrator
+      ansible.builtin.command:
+        cmd: whoami
+      register: sudo_check
+      become: true
+      changed_when: false
+
+    - name: Assert sudo operates correctly
+      ansible.builtin.assert:
+        that:
+          - sudo_check.stdout == "root"
+        fail_msg: "Sudo execution did not yield root user"
+
+    - name: 3. Verify root disk usage is below 90%
       ansible.builtin.assert:
         that:
           - (item.size_available / item.size_total) > 0.10
@@ -14,55 +27,59 @@
       loop: "{{ ansible_facts['mounts'] }}"
       when: item.mount == '/'
 
-    - name: 3. Verify no unmanaged systemd services failed unexpectedly
+    - name: 4. Verify nginx configuration syntax
       ansible.builtin.command:
-        cmd: systemctl --failed --no-legend --no-pager
-      register: failed_services_check
+        cmd: /usr/sbin/nginx -t
+      register: nginx_t_check
+      become: true
       changed_when: false
-      failed_when: false
 
-    - name: Report failed services if any
-      ansible.builtin.debug:
-        msg: "Failed services found: {{ failed_services_check.stdout_lines }}"
-      when: (failed_services_check.stdout | length) > 0
+    - name: 5. Verify core printer stack services are active
+      ansible.builtin.systemd_service:
+        name: "{{ item }}"
+      register: core_service_status
+      failed_when: core_service_status.status.ActiveState != 'active'
+      loop:
+        - klipper
+        - moonraker
+        - nginx
 
-    - name: 4. Verify web endpoint responds (Mainsail HTTP)
+    - name: 6. Verify web endpoint responds (Mainsail HTTP port 80)
       ansible.builtin.uri:
         url: http://127.0.0.1/
         return_content: false
         status_code: 200
         timeout: 5
       register: web_check
-      failed_when: false
 
-    - name: 5. Verify Moonraker API info endpoint responds
+    - name: 7. Verify Moonraker API endpoint responds (port 7125)
       ansible.builtin.uri:
         url: http://127.0.0.1:7125/server/info
         return_content: false
         status_code: 200
         timeout: 5
       register: moonraker_check
-      failed_when: false
-    - name: 6. Verify crowsnest service status
+
+    - name: 8. Check crowsnest status (informational - hardware dependent)
       ansible.builtin.systemd_service:
         name: crowsnest
-      register: crowsnest_service_check
+      register: crowsnest_status
       failed_when: false
 
-    - name: 7. Verify webcam snapshot endpoint responds
-      ansible.builtin.uri:
-        url: http://127.0.0.1:8080/?action=snapshot
-        return_content: false
-        status_code: 200
-        timeout: 5
-      register: webcam_check
+    - name: 9. Check tailscale status (informational)
+      ansible.builtin.command:
+        cmd: tailscale status
+      register: tailscale_check
+      changed_when: false
       failed_when: false
 
     - name: Summary of verification
       ansible.builtin.debug:
         msg:
           ssh_connected: true
-          mainsail_web_status: "{{ web_check.status | default('unreachable') }}"
-          moonraker_api_status: "{{ moonraker_check.status | default('unreachable') }}"
-          crowsnest_status: "{{ crowsnest_service_check.status.ActiveState | default('unknown') }}"
-          webcam_snapshot_status: "{{ webcam_check.status | default('unreachable') }}"
+          sudo_user: "{{ sudo_check.stdout }}"
+          nginx_config_valid: "{{ nginx_t_check.rc == 0 }}"
+          mainsail_web_status: "{{ web_check.status }}"
+          moonraker_api_status: "{{ moonraker_check.status }}"
+          crowsnest_condition: "{{ crowsnest_status.status.ActiveState | default('unknown') }} (hardware-dependent)"
+          tailscale_state: "{{ 'active' if tailscale_check.rc == 0 else 'logged out / unauthenticated' }}"

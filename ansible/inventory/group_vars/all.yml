@@ -1,19 +1,29 @@
 ---
-# Safe, declarative desired state.
-# Do not add unmanaged packages, files, or services here.
+# Declarative desired state for managed resources only.
+# MainsailOS base stack (Klipper, Moonraker, Mainsail, nginx proxy, Crowsnest, Avahi) is OBSERVED / UNMANAGED.
+
+admin_users:
+  - name: minhmice
+    shell: /bin/bash
+    groups:
+      - sudo
+      - adm
+      - dialout
+      - cdrom
+      - audio
+      - video
+      - plugdev
+      - users
+      - input
+      - netdev
+      - spi
+      - i2c
+      - gpio
 
 managed_packages: []
 managed_directories: []
-managed_services:
-  crowsnest:
-    state: started
-    enabled: true
+managed_services: {}
 web_apps: {}
-crowsnest_enabled: true
-
-server:
-  timezone: null
-  hostname: null
 
 safety_controls:
   allow_reboot: "{{ lookup('ansible.builtin.env', 'ALLOW_REBOOT') | default('false', true) | bool }}"

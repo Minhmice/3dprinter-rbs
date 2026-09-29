@@ -42,25 +42,68 @@ The target machine is a **Raspberry Pi 2 Model B Rev 1.1** (32-bit `armv7l`) act
 
 ---
 
+## Configuration Layout & Single Source of Truth
+
+The repository uses Ansible for configuration management with strict file boundaries:
+
+```text
+ansible/
+├── ansible.cfg
+├── inventory/
+│   ├── hosts.yml              # Target definitions (no secrets, no hardcoded IPs)
+│   └── group_vars/
+│       └── all.yml            # SINGLE SOURCE OF TRUTH for desired state
+├── playbooks/
+│   ├── site.yml               # Idempotent apply playbook
+│   └── verify.yml             # Health verification playbook
+└── roles/
+    ├── base/
+    ├── system/
+    ├── web/
+    └── custom/
+```
+
+- **Inventory (`hosts.yml`):** Contains only host definitions and dynamic environment variable lookups. No passwords or fallback IPs are tracked.
+- **Desired State (`group_vars/all.yml`):** All managed variables, user declarations, and safety controls live here. No duplicate `group_vars` files exist.
+
+---
+
 ## Layer Separation
 
-1. **Base OS Layer:**
+1. **Base OS Layer (OBSERVED / UNMANAGED):**
    - Distribution: Raspbian GNU/Linux 12 (bookworm)
    - Product: MainsailOS 2.0.0
+   - Stack: Klipper, Moonraker, Mainsail SPA, nginx reverse proxy, Avahi, Crowsnest
+   - Network tools: Tailscale (installed, observed)
+   - Hardware: Raspberry Pi 2 Model B Rev 1.1 (armv7l / 32-bit)
    - Locked in: `os/image.lock.yml`
-   - Responsibility: Kernel, base drivers, firmware, system packages provided by image.
+   - Policy: Do not duplicate or manage standard MainsailOS internals in Ansible.
 
 2. **Managed Infrastructure Layer (This Repository):**
+   - Administrative users: `admin_users` (`minhmice` with dedicated `/etc/sudoers.d/010_minhmice-nopasswd`)
    - Package additions: `managed_packages`
    - Infrastructure directories: `managed_directories`
    - Custom systemd units & drop-ins: `managed_services`
    - Nginx reverse proxies & static assets: `web_apps`
-   - User credentials & admin access policies
 
 3. **Printer Runtime Layer (Excluded):**
    - G-code files, timelapse media, camera feeds
    - Printer execution logs (`klippy.log`, `moonraker.log`)
    - Moonraker database
+
+---
+
+## Connection & Security Model
+
+```text
+.env (local gitignored)
+  ↓
+scripts/common.sh (exports environment & extra args)
+  ↓
+Ansible Playbook execution (receives credentials dynamically)
+```
+
+No passwords, authentication tokens, private keys, or machine secrets are tracked in Git.
 
 ---
 
