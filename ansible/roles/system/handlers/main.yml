@@ -3,9 +3,3 @@
   ansible.builtin.systemd_service:
     daemon_reload: true
   become: true
-
-- name: Restart crowsnest
-  ansible.builtin.systemd_service:
-    name: crowsnest
-    state: restarted
-  become: true
