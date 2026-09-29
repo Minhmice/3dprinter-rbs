@@ -11,7 +11,7 @@
         that:
           - (item.size_available / item.size_total) > 0.10
         fail_msg: "Root filesystem has less than 10% available space: {{ item.mount }}"
-      loop: "{{ ansible_mounts }}"
+      loop: "{{ ansible_facts['mounts'] }}"
       when: item.mount == '/'
 
     - name: 3. Verify no unmanaged systemd services failed unexpectedly
