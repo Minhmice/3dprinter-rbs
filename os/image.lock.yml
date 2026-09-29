@@ -1,17 +1,38 @@
+# OS and Base Image Lock
+# Separates observed running machine reality from verified official recovery image.
+
+# --- OBSERVED CURRENT MACHINE ---
+hardware:
+  model: "Raspberry Pi 2 Model B Rev 1.1"
+  architecture: "armv7l"
+  bits: 32
+  memory_bytes: 1000000000
+
 os:
-  family: raspberry-pi-os
-  distribution: raspbian
+  distribution: "Raspbian GNU/Linux"
+  debian_release: "bookworm"
   version: "12"
-  architecture: armv7l
-
-image:
-  product: mainsailos
-  release: "2.0.0"
-  source: null
-  checksum: null
-
-observed:
-  board_model: "Raspberry Pi 2 Model B Rev 1.1"
   kernel: "6.12.25+rpt-rpi-v7"
-  pi_gen_commit: "f548f25325e28bea61904f5038a9b9fd0c92b07b"
+
+mainsailos:
+  version: "2.0.0"
+
+build:
+  date: "2025-05-13"
+  provenance_commit: "f548f25325e28bea61904f5038a9b9fd0c92b07b"
+  generator: "pi-gen"
+  stage: "stage2"
   discovered_at: "2026-09-29"
+
+# --- KNOWN OFFICIAL BASE IMAGE ---
+recovery_image:
+  product: "MainsailOS"
+  release: "2.0.0"
+  architecture: "armhf"
+  target_devices:
+    - "pi1-32bit"
+    - "pi2-32bit"
+  source: "https://github.com/mainsail-crew/MainsailOS/releases/download/2.0.0/2025-05-19-MainsailOS-raspberry_pi-armhf-bookworm-2.0.0.img.xz"
+  checksum: "sha256:71dd42556a95d82a786f54c103749fdec7c61bb6342b91342979d255b3ab97a3"
+  uncompressed_sha256: "sha256:b95ffb0722c598793907ae29d6d18f0bd32872499508701d7d0a0f14c47ed4b5"
+  exact_match_verified: true
