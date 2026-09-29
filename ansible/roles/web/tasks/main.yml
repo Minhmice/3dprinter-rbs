@@ -1,0 +1,7 @@
+---
+- name: Verify nginx configuration when nginx is managed
+  ansible.builtin.command:
+    cmd: /usr/sbin/nginx -t
+  when: nginx_managed | bool
+  changed_when: false
+  become: true

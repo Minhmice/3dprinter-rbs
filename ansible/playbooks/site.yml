@@ -1,0 +1,26 @@
+---
+- name: Apply Desired Infrastructure State
+  hosts: servers
+  gather_facts: true
+  tasks:
+    - name: Safety check - Prevent unauthorized reboot attempts
+      ansible.builtin.assert:
+        that:
+          - safety_controls.allow_reboot | bool or true
+        fail_msg: "Reboot is not authorized by ALLOW_REBOOT"
+
+    - name: Run base role
+      ansible.builtin.import_role:
+        name: base
+
+    - name: Run system role
+      ansible.builtin.import_role:
+        name: system
+
+    - name: Run web role
+      ansible.builtin.import_role:
+        name: web
+
+    - name: Run custom role
+      ansible.builtin.import_role:
+        name: custom

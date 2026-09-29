@@ -1,0 +1,19 @@
+---
+- name: Ensure declared managed directories exist
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: directory
+    owner: "{{ item.owner | default('root') }}"
+    group: "{{ item.group | default('root') }}"
+    mode: "{{ item.mode | default('0755') }}"
+  loop: "{{ base_directories }}"
+  when: base_directories | length > 0
+  become: true
+
+- name: Ensure declared managed packages are installed
+  ansible.builtin.apt:
+    name: "{{ base_packages }}"
+    state: present
+    update_cache: false
+  when: base_packages | length > 0
+  become: true

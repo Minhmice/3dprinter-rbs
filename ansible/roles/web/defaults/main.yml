@@ -1,0 +1,4 @@
+---
+# Defaults for role web
+web_applications: "{{ web_apps | default({}) }}"
+nginx_managed: false

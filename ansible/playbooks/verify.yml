@@ -1,0 +1,52 @@
+---
+- name: Verify Raspberry Pi Infrastructure Health
+  hosts: servers
+  gather_facts: true
+  tasks:
+    - name: 1. Verify SSH connectivity and basic facts
+      ansible.builtin.ping:
+
+    - name: 2. Verify root disk usage is below 90%
+      ansible.builtin.assert:
+        that:
+          - (item.size_available / item.size_total) > 0.10
+        fail_msg: "Root filesystem has less than 10% available space: {{ item.mount }}"
+      loop: "{{ ansible_mounts }}"
+      when: item.mount == '/'
+
+    - name: 3. Verify no unmanaged systemd services failed unexpectedly
+      ansible.builtin.command:
+        cmd: systemctl --failed --no-legend --no-pager
+      register: failed_services_check
+      changed_when: false
+      failed_when: false
+
+    - name: Report failed services if any
+      ansible.builtin.debug:
+        msg: "Failed services found: {{ failed_services_check.stdout_lines }}"
+      when: (failed_services_check.stdout | length) > 0
+
+    - name: 4. Verify web endpoint responds (Mainsail HTTP)
+      ansible.builtin.uri:
+        url: http://127.0.0.1/
+        return_content: false
+        status_code: 200
+        timeout: 5
+      register: web_check
+      failed_when: false
+
+    - name: 5. Verify Moonraker API info endpoint responds
+      ansible.builtin.uri:
+        url: http://127.0.0.1:7125/server/info
+        return_content: false
+        status_code: 200
+        timeout: 5
+      register: moonraker_check
+      failed_when: false
+
+    - name: Summary of verification
+      ansible.builtin.debug:
+        msg:
+          ssh_connected: true
+          mainsail_web_status: "{{ web_check.status | default('unreachable') }}"
+          moonraker_api_status: "{{ moonraker_check.status | default('unreachable') }}"

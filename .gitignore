@@ -1,0 +1,24 @@
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+
+# Python and virtual environments
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+env/
+venv/
+
+# Ansible retry files and collections cache
+*.retry
+.ansible/
+
+# Operating system artifacts
+.DS_Store
+Thumbs.db
+
+# Sensitive / raw discovery dumps
+artifacts/*.raw
+artifacts/*.tmp

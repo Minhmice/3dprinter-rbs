@@ -1,0 +1,5 @@
+---
+- name: Placeholder for future custom application extensions
+  ansible.builtin.debug:
+    msg: "No custom applications declared."
+  when: (custom_configurations | length) == 0

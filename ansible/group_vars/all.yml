@@ -1,0 +1,18 @@
+---
+# Safe, declarative desired state.
+# Do not add unmanaged packages, files, or services here.
+
+managed_packages: []
+managed_directories: []
+managed_services: {}
+web_apps: {}
+
+server:
+  timezone: null
+  hostname: null
+
+safety_controls:
+  allow_reboot: "{{ lookup('ansible.builtin.env', 'ALLOW_REBOOT') | default('false', true) | bool }}"
+  allow_package_removal: "{{ lookup('ansible.builtin.env', 'ALLOW_PACKAGE_REMOVAL') | default('false', true) | bool }}"
+  allow_network_changes: "{{ lookup('ansible.builtin.env', 'ALLOW_NETWORK_CHANGES') | default('false', true) | bool }}"
+  allow_ssh_changes: "{{ lookup('ansible.builtin.env', 'ALLOW_SSH_CHANGES') | default('false', true) | bool }}"

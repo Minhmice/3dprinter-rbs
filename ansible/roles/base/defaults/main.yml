@@ -1,0 +1,4 @@
+---
+# Defaults for role base
+base_packages: "{{ managed_packages | default([]) }}"
+base_directories: "{{ managed_directories | default([]) }}"

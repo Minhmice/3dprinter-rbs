@@ -1,0 +1,9 @@
+---
+- name: Ensure declared managed system services are in desired state
+  ansible.builtin.systemd_service:
+    name: "{{ item.key }}"
+    state: "{{ item.value.state | default('started') }}"
+    enabled: "{{ item.value.enabled | default(true) }}"
+  loop: "{{ system_services | dict2items }}"
+  when: (system_services | dict2items | length) > 0
+  become: true

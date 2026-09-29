@@ -1,0 +1,17 @@
+os:
+  family: raspberry-pi-os
+  distribution: raspbian
+  version: "12"
+  architecture: armv7l
+
+image:
+  product: mainsailos
+  release: "2.0.0"
+  source: null
+  checksum: null
+
+observed:
+  board_model: "Raspberry Pi 2 Model B Rev 1.1"
+  kernel: "6.12.25+rpt-rpi-v7"
+  pi_gen_commit: "f548f25325e28bea61904f5038a9b9fd0c92b07b"
+  discovered_at: "2026-09-29"
