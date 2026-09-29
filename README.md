@@ -49,7 +49,7 @@ Local workstation requirements:
    ```
 2. Edit `.env` with host credentials and safety controls:
    ```dotenv
-   SSH_HOST=192.168.0.103
+   SSH_HOST=192.168.x.x
    SSH_PORT=22
    SSH_USER=kero
    SSH_PASSWORD=your_password

@@ -41,7 +41,7 @@ On your local workstation:
    ```
 3. Set your target IP and credentials in `.env`:
    ```dotenv
-   SSH_HOST=192.168.0.103
+   SSH_HOST=192.168.x.x
    SSH_PORT=22
    SSH_USER=kero
    SSH_PASSWORD=your_initial_password

@@ -36,3 +36,14 @@ if [[ -z "${SSH_USER:-}" ]]; then
   printf "FAILURE: Missing SSH_USER\nCAUSE: SSH_USER is not set in environment or .env\nFIX / NEXT ACTION: Set SSH_USER in .env.\n" >&2
   exit 1
 fi
+
+# Construct runtime authentication arguments for Ansible without committing credentials
+ANSIBLE_EXTRA_ARGS=()
+if [[ -n "${SSH_PASSWORD:-}" ]]; then
+  ANSIBLE_EXTRA_ARGS+=(-e "ansible_password=${SSH_PASSWORD}")
+fi
+if [[ -n "${SUDO_PASSWORD:-}" ]]; then
+  ANSIBLE_EXTRA_ARGS+=(-e "ansible_become_password=${SUDO_PASSWORD}")
+elif [[ -n "${SSH_PASSWORD:-}" ]]; then
+  ANSIBLE_EXTRA_ARGS+=(-e "ansible_become_password=${SSH_PASSWORD}")
+fi

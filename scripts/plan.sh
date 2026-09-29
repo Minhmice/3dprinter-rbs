@@ -15,4 +15,5 @@ printf "=====================================================\n"
   "${REPO_ROOT}/ansible/playbooks/site.yml" \
   --check \
   --diff \
+  "${ANSIBLE_EXTRA_ARGS[@]}" \
   "$@"

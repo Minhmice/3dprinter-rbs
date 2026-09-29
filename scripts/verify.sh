@@ -13,4 +13,5 @@ printf "=====================================================\n"
 "${ANSIBLE_PLAYBOOK}" \
   -i "${ANSIBLE_INVENTORY}" \
   "${REPO_ROOT}/ansible/playbooks/verify.yml" \
+  "${ANSIBLE_EXTRA_ARGS[@]}" \
   "$@"
